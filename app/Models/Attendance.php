@@ -12,8 +12,8 @@ class Attendance extends Model
     ];
 
     protected $casts = [
-        'date'    => 'date',
-        'tap_in'  => 'datetime',
+        'date' => 'date',
+        'tap_in' => 'datetime',
         'tap_out' => 'datetime',
     ];
 

@@ -236,6 +236,10 @@
                 class="nav-link {{ request()->routeIs('karyawan.attendance') ? 'active' : '' }}">
                 <i class="bi bi-calendar-check"></i> Riwayat Absensi
             </a>
+            <a href="{{ route('karyawan.tasks') }}"
+            class="nav-link {{ request()->routeIs('karyawan.tasks*') ? 'active' : '' }}">
+              <i class="bi bi-check2-square"></i> Task Hari Ini
+              </a>
             <a href="{{ route('karyawan.kpi') }}"
                 class="nav-link {{ request()->routeIs('karyawan.kpi') ? 'active' : '' }}">
                 <i class="bi bi-graph-up"></i> KPI Saya

@@ -161,6 +161,10 @@
            class="nav-link {{ request()->routeIs('hrd.rfid-cards.*') ? 'active' : '' }}">
             <i class="bi bi-credit-card-2-front"></i> Kartu RFID
         </a>
+        <a href="{{ route('hrd.tasks.index') }}"
+         class="nav-link {{ request()->routeIs('hrd.tasks.*') ? 'active' : '' }}">
+           <i class="bi bi-list-task"></i> Manajemen Task
+           </a>
         <a href="{{ route('hrd.attendances.index') }}"
            class="nav-link {{ request()->routeIs('hrd.attendances.*') ? 'active' : '' }}">
             <i class="bi bi-calendar-check"></i> Absensi

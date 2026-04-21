@@ -14,7 +14,7 @@ class KpiScore extends Model
 
     protected $casts = [
         'tap_out_allowed' => 'boolean',
-        'calculated_at'   => 'datetime',
+        'calculated_at' => 'datetime',
     ];
 
     public function employee()

@@ -50,13 +50,23 @@ class RfidCardController extends Controller
     public function update(Request $request, RfidCard $rfidCard)
     {
         $request->validate([
-            'status' => 'required|in:active,inactive',
+            'status'      => 'required|in:active,inactive',
+            'employee_id' => 'nullable|exists:employees,id',
         ]);
 
-        $rfidCard->update(['status' => $request->status]);
+        if ($request->employee_id && $request->employee_id != $rfidCard->employee_id) {
+            RfidCard::where('employee_id', $request->employee_id)
+                ->where('id', '!=', $rfidCard->id)
+                ->update(['status' => 'inactive']);
+        }
+
+        $rfidCard->update([
+            'status'      => $request->status,
+            'employee_id' => $request->employee_id,
+        ]);
 
         return redirect()->route('hrd.rfid-cards.index')
-            ->with('success', 'Status kartu berhasil diupdate.');
+            ->with('success', 'Kartu RFID berhasil diupdate.');
     }
 
     public function destroy(RfidCard $rfidCard)

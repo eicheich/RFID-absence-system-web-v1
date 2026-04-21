@@ -12,8 +12,10 @@ use Illuminate\Http\Request;
 
 class RfidController extends Controller
 {
-    public function __construct(private KpiService $kpiService) {}
-
+    public function __construct(
+        private KpiService  $kpiService,
+        private TaskService $taskService
+    ) {}
     /**
      * Proses 1.0 DFD — Registrasi kartu RFID baru
      * Arduino kirim UID kartu, HRD nanti assign ke karyawan lewat website
@@ -104,54 +106,78 @@ class RfidController extends Controller
                 'rfid_card_id' => $card->id,
                 'date'         => $today,
                 'tap_in'       => $now,
-                'status'       => $status,
+                'status' => $status,
             ]);
 
             return response()->json([
-                'success'  => true,
-                'action'   => 'tap_in',
-                'status'   => $status,
-                'message'  => 'Tap-in berhasil. ' . ($status === 'late' ? 'Anda terlambat.' : 'Tepat waktu!'),
+                'success' => true,
+                'action' => 'tap_in',
+                'status' => $status,
+                'message' => 'Tap-in berhasil. ' . ($status === 'late' ? 'Anda terlambat.' : 'Tepat waktu!'),
                 'employee' => $employee->name,
-                'time'     => $now->format('H:i:s'),
+                'time' => $now->format('H:i:s'),
             ]);
         }
-
         // Sudah tap-in tapi belum tap-out → proses tap-out
         if ($attendance->tap_in && !$attendance->tap_out) {
 
-            // Hitung KPI dulu (proses 4.0 DFD)
+            // Step 1: Cek task dulu sebelum KPI
+            $taskCheck = $this->taskService->canTapOut($employee->id, Carbon::today());
+
+            if (!$taskCheck['allowed']) {
+                $message = match ($taskCheck['reason']) {
+                    'insufficient_tasks' => 'Selesaikan minimal 70% task hari ini dulu. '
+                        . 'Baru ' . $taskCheck['rate'] . '% selesai.',
+                    'missing_reports'    => 'Ada ' . $taskCheck['missing']
+                        . ' laporan task yang wajib diisi.',
+                    default              => 'Task belum memenuhi syarat tap-out.',
+                };
+
+                return response()->json([
+                    'success'         => false,
+                    'action'          => 'task_incomplete',
+                    'message'         => $message,
+                    'completion_rate' => $taskCheck['rate'],
+                ]);
+            }
+
+            // Step 2: Hitung KPI bulan ini
             $kpi = $this->kpiService->calculate($employee->id);
 
-            // Kalau KPI tidak valid → tap-out diblokir (status diblokir dari 4.2 DFD)
             if (!$kpi->tap_out_allowed) {
                 return response()->json([
                     'success' => false,
                     'action'  => 'blocked',
                     'message' => 'Tap-out diblokir. KPI tidak memenuhi threshold.',
                     'kpi'     => [
-                        'total_score'       => $kpi->total_score,
-                        'attendance_score'  => $kpi->attendance_score,
-                        'punctuality_score' => $kpi->punctuality_score,
+                        'total_score'      => $kpi->total_score,
+                        'task_score'       => $kpi->attendance_score,
                     ],
                 ]);
             }
 
-            // KPI valid → izinkan tap-out
-            $workDuration = $attendance->tap_in->diffInMinutes($now);
+            // Step 3: Izinkan tap-out
+            $workDuration = $attendance->tap_in->diffInMinutes(now());
 
             $attendance->update([
-                'tap_out'       => $now,
-                'work_duration' => $workDuration,
+                'tap_out'               => now(),
+                'work_duration'         => $workDuration,
+                'task_submitted'        => true,
+                'task_completion_rate'  => $taskCheck['rate'],
             ]);
+
+            // Step 4: Carry-over task yang belum selesai
+            $carried = $this->taskService->carryOverUnfinishedTasks($employee->id, Carbon::today());
 
             return response()->json([
                 'success'       => true,
                 'action'        => 'tap_out',
                 'message'       => 'Tap-out berhasil.',
                 'employee'      => $employee->name,
-                'time'          => $now->format('H:i:s'),
+                'time'          => now()->format('H:i:s'),
                 'work_duration' => $workDuration . ' menit',
+                'task_rate'     => $taskCheck['rate'] . '%',
+                'carried_over'  => $carried,
                 'kpi_score'     => $kpi->total_score,
             ]);
         }

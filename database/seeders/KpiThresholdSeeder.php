@@ -13,7 +13,7 @@ class KpiThresholdSeeder extends Seeder
             [
                 'name' => 'Kehadiran Minimum',
                 'metric' => 'attendance_rate',
-                'min_value'=> 80.00,
+                'min_value' => 80.00,
                 'max_value' => 100.00,
                 'description' => 'Karyawan wajib hadir minimal 80% dalam sebulan',
             ],
@@ -21,8 +21,15 @@ class KpiThresholdSeeder extends Seeder
                 'name' => 'Ketepatan Waktu',
                 'metric' => 'punctuality_score',
                 'min_value' => 75.00,
-                'max_value'=> 100.00,
+                'max_value' => 100.00,
                 'description' => 'Skor ketepatan waktu minimal 75%',
+            ],
+            [
+                'name' => 'Penyelesaian Task',
+                'metric' => 'task_completion',
+                'min_value' => 70.00,
+                'max_value' => 100.00,
+                'description' => 'Rata-rata penyelesaian task harian minimal 70%',
             ],
         ];
 
