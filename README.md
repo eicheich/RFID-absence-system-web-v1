@@ -571,3 +571,5 @@ eligible_days  = jumlah hari dengan daily_rate ≥ 70%
 - Riwayat absensi dengan filter bulan/tahun
 - KPI pribadi: skor bulanan dan riwayat tahunan
 - Edit profil dan ganti password
+#   R F I D _ a b s e n c e _ s y s t e m _ v 2  
+ 
