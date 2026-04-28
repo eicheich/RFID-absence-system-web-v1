@@ -24,6 +24,15 @@ class RoleAndUserSeeder extends Seeder
         );
         $hrd->syncRoles([$hrdRole]);
 
+        $hrd2 = User::firstOrCreate(
+            ['email' => 'hrd2@absensi.com'],
+            [
+                'name'     => 'Admin HRD 2',
+                'password' => bcrypt('password123'),
+            ]
+        );
+        $hrd2->syncRoles([$hrdRole]);
+
         // Buat akun karyawan contoh (skip kalau sudah ada)
         $karyawan = User::firstOrCreate(
             ['email' => 'karyawan@absensi.com'],

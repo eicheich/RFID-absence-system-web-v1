@@ -30,32 +30,37 @@ class TaskController extends Controller
     public function submit(Request $request)
     {
         $employee = auth()->user()->employee;
-        if (!$employee) return redirect()->route('karyawan.dashboard');
 
         $request->validate([
-            'tasks'              => 'required|array',
-            'tasks.*.assignment_id' => 'required|exists:task_assignments,id',
-            'tasks.*.is_done'    => 'boolean',
-            'tasks.*.report'     => 'nullable|string',
+            'tasks'                     => 'required|array',
+            'tasks.*.assignment_id'     => 'required|exists:task_assignments,id',
+            'tasks.*.is_done'           => 'boolean',
+            'tasks.*.report'            => 'nullable|string',
+            'tasks.*.attachment_url'    => 'nullable|url',
+            'tasks.*.attachment_file'   => 'nullable|file|max:10240', // max 10MB
         ]);
 
         $today = Carbon::today();
 
-        foreach ($request->tasks as $taskData) {
+        foreach ($request->tasks as $i => $taskData) {
             $assignment = TaskAssignment::find($taskData['assignment_id']);
-
-            // Pastikan task ini milik karyawan ini
             if ($assignment->employee_id !== $employee->id) continue;
 
             $isDone = isset($taskData['is_done']) && $taskData['is_done'];
 
-            // Cek laporan wajib
-            if ($isDone && $assignment->isReportRequired()
-                && empty($taskData['report'])) {
+            if ($isDone && $assignment->isReportRequired() && empty($taskData['report'])) {
                 return back()->withErrors([
-                    'report' => 'Laporan wajib diisi untuk task: '
-                        . $assignment->template->title
+                    'report' => 'Laporan wajib diisi untuk task: ' . $assignment->template->title
                 ]);
+            }
+
+            // Handle file upload
+            $attachmentPath = null;
+            $attachmentName = null;
+            if ($request->hasFile("tasks.$i.attachment_file")) {
+                $file = $request->file("tasks.$i.attachment_file");
+                $attachmentName = $file->getClientOriginalName();
+                $attachmentPath = $file->store("task-attachments/{$employee->id}", 'public');
             }
 
             TaskCompletion::updateOrCreate(
@@ -64,17 +69,17 @@ class TaskController extends Controller
                     'completion_date'    => $today->toDateString(),
                 ],
                 [
-                    'employee_id'  => $employee->id,
-                    'is_done'      => $isDone,
-                    'report'       => $taskData['report'] ?? null,
-                    'submitted_at' => now(),
+                    'employee_id'     => $employee->id,
+                    'is_done'         => $isDone,
+                    'report'          => $taskData['report'] ?? null,
+                    'attachment_path' => $attachmentPath,
+                    'attachment_name' => $attachmentName,
+                    'attachment_url'  => $taskData['attachment_url'] ?? null,
+                    'submitted_at'    => now(),
                 ]
             );
 
-            // Update status assignment
-            if ($isDone) {
-                $assignment->update(['status' => 'done']);
-            }
+            if ($isDone) $assignment->update(['status' => 'done']);
         }
 
         return back()->with('success', 'Task berhasil disimpan.');

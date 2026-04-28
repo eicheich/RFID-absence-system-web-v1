@@ -13,6 +13,7 @@ use App\Http\Controllers\Karyawan\AttendanceController as KaryawanAttendance;
 use App\Http\Controllers\Karyawan\KpiController as KaryawanKpi;
 use App\Http\Controllers\Karyawan\ProfileController as KaryawanProfile;
 use App\Http\Controllers\HRD\TaskController;
+use App\Http\Controllers\HRD\TaskReviewController;
 use App\Http\Controllers\Karyawan\TaskController as KaryawanTask;
 
 Route::get('/', function () {
@@ -57,7 +58,13 @@ Route::middleware('auth')->group(function () {
             Route::put('/{task}', [TaskController::class, 'update'])->name('update');
             Route::delete('/{task}', [TaskController::class, 'destroy'])->name('destroy');
             Route::get('/monitor/daily', [TaskController::class, 'monitor'])->name('monitor');
-});
+        });
+        Route::prefix('task-reviews')->name('task-reviews.')->group(function () {
+            Route::get('/', [TaskReviewController::class, 'index'])->name('index');
+            Route::get('/{completion}', [TaskReviewController::class, 'show'])->name('show');
+            Route::post('/{completion}/approve', [TaskReviewController::class, 'approve'])->name('approve');
+            Route::post('/{completion}/decline', [TaskReviewController::class, 'decline'])->name('decline');
+        });
         // KPI
         Route::get('kpi', [KpiController::class, 'index'])->name('kpi.index');
         Route::get('kpi/{employee}', [KpiController::class, 'show'])->name('kpi.show');
@@ -66,10 +73,10 @@ Route::middleware('auth')->group(function () {
 
     // ── Route Karyawan ─────────────────────────────────────
     Route::middleware('role:karyawan')->prefix('karyawan')->name('karyawan.')->group(function () {
-        Route::get('/dashboard',[KaryawanDashboard::class,  'index'])->name('dashboard');
+        Route::get('/dashboard', [KaryawanDashboard::class,  'index'])->name('dashboard');
         Route::get('/attendance', [KaryawanAttendance::class, 'index'])->name('attendance');
         Route::get('/kpi', [KaryawanKpi::class, 'index'])->name('kpi');
-        Route::get('/profile', [KaryawanProfile::class,'index'])->name('profile');
+        Route::get('/profile', [KaryawanProfile::class, 'index'])->name('profile');
         Route::put('/profile', [KaryawanProfile::class, 'update'])->name('profile.update');
         Route::get('/tasks', [KaryawanTask::class, 'index'])->name('tasks');
         Route::post('/tasks/submit', [KaryawanTask::class, 'submit'])->name('tasks.submit');

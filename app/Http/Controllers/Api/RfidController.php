@@ -7,6 +7,7 @@ use App\Models\Attendance;
 use App\Models\Employee;
 use App\Models\RfidCard;
 use App\Services\KpiService;
+use App\Services\TaskService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -118,19 +119,19 @@ class RfidController extends Controller
                 'time' => $now->format('H:i:s'),
             ]);
         }
-        // Sudah tap-in tapi belum tap-out → proses tap-out
+        // Tap-out sekarang hanya cek task, tidak cek KPI bulanan
         if ($attendance->tap_in && !$attendance->tap_out) {
 
-            // Step 1: Cek task dulu sebelum KPI
+            // Hanya cek task — KPI bulanan tidak memblokir tap-out
             $taskCheck = $this->taskService->canTapOut($employee->id, Carbon::today());
 
             if (!$taskCheck['allowed']) {
                 $message = match ($taskCheck['reason']) {
-                    'insufficient_tasks' => 'Selesaikan minimal 70% task hari ini dulu. '
-                        . 'Baru ' . $taskCheck['rate'] . '% selesai.',
+                    'insufficient_tasks' => 'Selesaikan minimal 70% task hari ini. '
+                        . 'Baru ' . number_format($taskCheck['rate'], 1) . '% selesai.',
                     'missing_reports'    => 'Ada ' . $taskCheck['missing']
                         . ' laporan task yang wajib diisi.',
-                    default              => 'Task belum memenuhi syarat tap-out.',
+                    default => 'Task belum memenuhi syarat tap-out.',
                 };
 
                 return response()->json([
@@ -141,32 +142,17 @@ class RfidController extends Controller
                 ]);
             }
 
-            // Step 2: Hitung KPI bulan ini
-            $kpi = $this->kpiService->calculate($employee->id);
-
-            if (!$kpi->tap_out_allowed) {
-                return response()->json([
-                    'success' => false,
-                    'action'  => 'blocked',
-                    'message' => 'Tap-out diblokir. KPI tidak memenuhi threshold.',
-                    'kpi'     => [
-                        'total_score'      => $kpi->total_score,
-                        'task_score'       => $kpi->attendance_score,
-                    ],
-                ]);
-            }
-
-            // Step 3: Izinkan tap-out
+            // Langsung proses tap-out tanpa cek KPI bulanan
             $workDuration = $attendance->tap_in->diffInMinutes(now());
+            $kpi = $this->kpiService->calculate($employee->id); // tetap hitung untuk rekap
 
             $attendance->update([
-                'tap_out'               => now(),
-                'work_duration'         => $workDuration,
-                'task_submitted'        => true,
-                'task_completion_rate'  => $taskCheck['rate'],
+                'tap_out'              => now(),
+                'work_duration'        => $workDuration,
+                'task_submitted'       => true,
+                'task_completion_rate' => $taskCheck['rate'],
             ]);
 
-            // Step 4: Carry-over task yang belum selesai
             $carried = $this->taskService->carryOverUnfinishedTasks($employee->id, Carbon::today());
 
             return response()->json([
@@ -176,9 +162,9 @@ class RfidController extends Controller
                 'employee'      => $employee->name,
                 'time'          => now()->format('H:i:s'),
                 'work_duration' => $workDuration . ' menit',
-                'task_rate'     => $taskCheck['rate'] . '%',
-                'carried_over'  => $carried,
+                'task_rate'     => number_format($taskCheck['rate'], 1) . '%',
                 'kpi_score'     => $kpi->total_score,
+                'carried_over'  => $carried,
             ]);
         }
 
