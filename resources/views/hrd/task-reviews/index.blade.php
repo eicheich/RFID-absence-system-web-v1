@@ -3,13 +3,6 @@
 
 @section('content')
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h5 class="mb-0 fw-semibold">Review Laporan Task</h5>
-            <small class="text-muted">Periksa dan review laporan yang dikirim karyawan</small>
-        </div>
-    </div>
-
     {{-- Summary badges --}}
     <div class="row g-3 mb-4">
         <div class="col-6 col-md-4">

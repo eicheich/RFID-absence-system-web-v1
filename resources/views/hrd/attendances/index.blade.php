@@ -3,12 +3,7 @@
 
 @section('content')
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h5 class="mb-0 fw-semibold">Data Absensi</h5>
-            <small class="text-muted">Rekap absensi karyawan per hari</small>
-        </div>
-    </div>
+    
 
     {{-- Filter Tanggal --}}
     <div class="card form-card mb-4 p-4">

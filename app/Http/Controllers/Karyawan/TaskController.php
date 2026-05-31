@@ -76,6 +76,8 @@ class TaskController extends Controller
                     'attachment_name' => $attachmentName,
                     'attachment_url'  => $taskData['attachment_url'] ?? null,
                     'submitted_at'    => now(),
+                    'review_status'   => 'pending',
+                    'review_note'     => null,
                 ]
             );
 

@@ -30,7 +30,12 @@ Route::middleware('auth')->group(function () {
         if (auth()->user()->hasRole('hrd')) {
             return redirect()->route('hrd.dashboard');
         }
-        return redirect()->route('karyawan.dashboard');
+
+        if (auth()->user()->hasRole('karyawan')) {
+            return redirect()->route('karyawan.dashboard');
+        }
+
+        abort(403, 'Akun tidak memiliki role dashboard yang valid.');
     })->name('dashboard');
 
     // ── Route HRD ──────────────────────────────────────────

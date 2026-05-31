@@ -15,6 +15,11 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RoleAndUserSeeder::class,
             KpiThresholdSeeder::class,
+            EmployeeSeeder::class,
+            RfidCardSeeder::class,
+            AttendanceSeeder::class,
+            TaskSeeder::class,
+            KpiScoreSeeder::class,
         ]);
     }
 }

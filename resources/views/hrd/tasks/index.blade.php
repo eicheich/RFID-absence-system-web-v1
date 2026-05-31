@@ -4,10 +4,7 @@
 @section('content')
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h5 class="mb-0 fw-semibold">Manajemen Task</h5>
-        <small class="text-muted">Kelola task dan distribusi ke karyawan</small>
-    </div>
+  
     <div class="d-flex gap-2">
         <a href="{{ route('hrd.tasks.monitor') }}" class="btn btn-outline-primary btn-sm">
             <i class="bi bi-bar-chart me-1"></i> Monitor Hari Ini

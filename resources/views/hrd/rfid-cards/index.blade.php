@@ -3,12 +3,7 @@
 
 @section('content')
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h5 class="mb-0 fw-semibold">Manajemen Kartu RFID</h5>
-        <small class="text-muted">Kartu yang dibaca mesin akan muncul di sini</small>
-    </div>
-</div>
+
 
 <div class="card table-card">
     <div class="table-responsive">

@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use Spatie\Permission\Models\Role;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -28,6 +29,13 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
 
         $request->session()->regenerate();
+
+        $user = $request->user();
+        if ($user && !$user->hasAnyRole(['hrd', 'karyawan'])) {
+            // Ensure user can access dashboard even if role data was not seeded yet.
+            Role::firstOrCreate(['name' => 'karyawan', 'guard_name' => 'web']);
+            $user->assignRole('karyawan');
+        }
 
         return redirect()->intended(RouteServiceProvider::HOME);
     }

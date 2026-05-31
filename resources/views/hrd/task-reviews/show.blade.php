@@ -1,16 +1,12 @@
 @extends('layouts.hrd')
-@section('title', 'Detail Review Laporan')
+@section('title', 'Detail Review Laporan — ' . ($completion->employee->name ?? '') . ' — ' . ($completion->completion_date?->format('d M Y') ?? ''))
 
 @section('content')
 
 <div class="d-flex align-items-center gap-2 mb-4">
-    <a href="{{ route('hrd.task-reviews.index') }}" class="btn btn-sm btn-outline-secondary">
+    <a href="{{ route('hrd.task-reviews.index') }}" class="btn btn-square view">
         <i class="bi bi-arrow-left"></i>
     </a>
-    <div>
-        <h5 class="mb-0 fw-semibold">Detail Review Laporan</h5>
-        <small class="text-muted">{{ $completion->employee->name }} — {{ $completion->completion_date->format('d M Y') }}</small>
-    </div>
 </div>
 
 <div class="row g-4">
@@ -50,7 +46,7 @@
             {{-- Deskripsi task --}}
             @if($completion->assignment->template->description)
             <div class="p-3 rounded mb-3"
-                 style="background:var(--bs-light);border-left:3px solid #2563eb">
+                 style="background:rgba(255,255,255,0.02);border-left:3px solid #2563eb">
                 <small class="text-muted fw-medium d-block mb-1">Deskripsi Task:</small>
                 <p class="mb-0 small">{{ $completion->assignment->template->description }}</p>
             </div>
@@ -60,11 +56,11 @@
             <div class="mb-3">
                 <label class="form-label fw-medium">Laporan Karyawan</label>
                 @if($completion->report)
-                    <div class="p-3 rounded border" style="background:#f8fafc;min-height:80px">
+                    <div class="p-3 rounded border" style="background:rgba(255,255,255,0.02);min-height:80px;border-color:rgba(255,255,255,0.04)">
                         {{ $completion->report }}
                     </div>
                 @else
-                    <div class="p-3 rounded border text-muted fst-italic" style="background:#f8fafc">
+                    <div class="p-3 rounded border text-muted fst-italic" style="background:rgba(255,255,255,0.02);border-color:rgba(255,255,255,0.04)">
                         Tidak ada laporan teks
                     </div>
                 @endif

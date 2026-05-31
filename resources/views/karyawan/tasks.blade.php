@@ -58,7 +58,7 @@
 
     {{-- Form task --}}
     @if ($tasks->total > 0)
-        <form action="{{ route('karyawan.tasks.submit') }}" method="POST">
+        <form action="{{ route('karyawan.tasks.submit') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
             <div class="card table-card mb-4">

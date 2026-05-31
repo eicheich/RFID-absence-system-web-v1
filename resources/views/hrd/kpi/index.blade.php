@@ -3,12 +3,7 @@
 
 @section('content')
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h5 class="mb-0 fw-semibold">Data KPI Karyawan</h5>
-            <small class="text-muted">Skor KPI dihitung otomatis dari data absensi</small>
-        </div>
-    </div>
+    
 
     {{-- Filter + Setting Threshold --}}
     <div class="row g-3 mb-4">

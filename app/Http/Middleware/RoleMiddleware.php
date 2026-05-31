@@ -9,12 +9,23 @@ class RoleMiddleware
 {
     public function handle(Request $request, Closure $next, string $role): mixed
     {
-        if (!$request->user() || !$request->user()->hasRole($role)) {
-            // Kalau bukan role yang sesuai, redirect ke dashboard sendiri
-            if ($request->user()?->hasRole('hrd')) {
+        $user = $request->user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        if (!$user->hasRole($role)) {
+            // Redirect only to a valid owned dashboard to avoid redirect loops.
+            if ($user->hasRole('hrd')) {
                 return redirect()->route('hrd.dashboard');
             }
-            return redirect()->route('karyawan.dashboard');
+
+            if ($user->hasRole('karyawan')) {
+                return redirect()->route('karyawan.dashboard');
+            }
+
+            abort(403, 'Akun tidak memiliki role yang diizinkan.');
         }
 
         return $next($request);
