@@ -6,7 +6,7 @@
 #include <MFRC522.h>
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
-
+// yes
 LiquidCrystal_I2C lcd(0x27, 16, 2); // Menggunakan alamat 0x27 hasil tes yang berhasil
 
 // ── Konfigurasi WiFi ─────────────────────────────────────
@@ -75,7 +75,7 @@ void setup() {
     Serial.println("[WIFI] BERHASIL Terhubung!");
     Serial.print("[WIFI] IP Address ESP: ");
     Serial.println(WiFi.localIP());
-    
+
     lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print("WiFi Connected!");
@@ -142,7 +142,7 @@ void loop() {
   // Jalankan sesuai mode
   if (currentMode == MODE_PRESENSI) {
     sendCheckin(uid);
-  } else { 
+  } else {
     sendRegister(uid);
   }
 
@@ -213,7 +213,7 @@ void sendCheckin(String uid) {
 
   Serial.println("[HTTP] Mengirim POST Request...");
   int httpCode = http.POST(body);
-  
+
   Serial.print("[HTTP] Response Code: ");
   Serial.println(httpCode);
 
@@ -282,7 +282,7 @@ void sendCheckin(String uid) {
   } else {
     Serial.print("[HTTP-ERROR] Request Gagal! Detail Error: ");
     Serial.println(http.errorToString(httpCode).c_str());
-    
+
     lcd.setCursor(0, 0);
     lcd.print("Koneksi Error!");
     lcd.setCursor(0, 1);
@@ -320,7 +320,7 @@ void sendRegister(String uid) {
 
   Serial.println("[HTTP] Mengirim POST Request...");
   int httpCode = http.POST(body);
-  
+
   Serial.print("[HTTP] Response Code: ");
   Serial.println(httpCode);
 
@@ -358,7 +358,7 @@ void sendRegister(String uid) {
   } else {
     Serial.print("[HTTP-ERROR] Request Gagal! Detail Error: ");
     Serial.println(http.errorToString(httpCode).c_str());
-    
+
     lcd.setCursor(0, 0);
     lcd.print("Koneksi Error!");
     lcd.setCursor(0, 1);
@@ -376,16 +376,16 @@ bool isWifiConnected() {
   if (WiFi.status() == WL_CONNECTED) {
     return true;
   }
-  
+
   Serial.println("[WIFI] Status Terputus! Mencoba Reconnect...");
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("WiFi Terputus!");
   lcd.setCursor(0, 1);
   lcd.print("Reconnecting..");
-  
+
   WiFi.reconnect();
-  
+
   int counter = 0;
   while (WiFi.status() != WL_CONNECTED && counter < 10) {
     delay(500);
@@ -393,7 +393,7 @@ bool isWifiConnected() {
     counter++;
   }
   Serial.println();
-  
+
   if (WiFi.status() == WL_CONNECTED) {
     Serial.println("[WIFI] Reconnect Berhasil.");
     return true;
